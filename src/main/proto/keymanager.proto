@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.zup.keymanager.proto";
+option java_outer_classname = "KeymanagerOuterClass";
+//annotations_package = "com.zup.keymanager.validations.annotations"
+
+package com.zup.keymanager.proto;
+
+service PixKeyService {
+  rpc create (PixKeyCreateRequest) returns (PixKeyCreateResponse) {}
+  rpc delete (PixKeyDeleteRequest) returns (Void) {}
+  rpc info (PixKeyInfoRequest) returns (PixKeyInfoResponse) {}
+  rpc list (PixKeyListRequest) returns (PixKeyListResponse) {}
+}
+
+enum KeyType {
+  UNKNOWN_KEY_TYPE = 0;
+  DOCUMENT = 1;
+  PHONE = 2;
+  EMAIL = 3;
+  RANDOM = 4;
+}
+
+enum AccountType {
+  UNKNOWN_ACCOUNT_TYPE = 0;
+  CHECKING = 1;
+  SAVINGS = 2;
+}
+
+message PixKeyCreateRequest { //@ValidKeyValue
+  string clientId = 1; //@ValidUUID @NotBlank
+  KeyType keyType = 2; //@NotNull
+  string keyValue = 3; //@UniqueKeyValue @Size(max=77)
+  AccountType accountType = 4; //@NotNull @ValidAccountType
+}
+
+message PixKeyCreateResponse {
+  string clientId = 1;
+  string pixId = 2;
+}
+
+message PixKeyDeleteRequest { //@PixKeyOwner
+  string clientId = 1; //@ValidUUID @NotBlank
+  string pixId = 2; //@ValidUUID @NotBlank
+}
+
+message Void {}
+
+message PixKeyInfoRequest { //@OneOf
+  oneof request {
+    string keyValue = 1; //@NotBlank @Size(max=77)
+    PixKeyInfoPair infoPair = 2;
+  }
+
+  message PixKeyInfoPair { //@PixKeyOwner
+    string clientId = 1; //@ValidUUID @NotBlank
+    string pixId = 2; //@ValidUUID @NotBlank
+  }
+}
+
+message PixKeyInfoResponse {
+  string pixId = 1;
+  string clientId = 2;
+  string keyValue = 3;
+  KeyType keyType = 4;
+  OwnerDetails owner = 6;
+  AccountDetails account = 7;
+  string createdAt = 8;
+}
+
+message OwnerDetails {
+  string name = 1;
+  string document = 2;
+}
+
+message AccountDetails {
+  string name = 1;
+  string branch = 2;
+  string number = 3;
+  AccountType accountType = 4;
+}
+
+message PixKeyListRequest {
+  string clientId = 1; //@ValidUUID @NotBlank
+}
+
+message PixKeyListResponse {
+  repeated PixKeyInfoResponse pixKeys = 1;
+}
+
+//For client usage only
+message PixKeyResult {
+  string status = 1;
+  oneof result {
+    Success success = 2;
+    Failure failure = 3;
+  }
+
+  message Success {
+    string message = 1;
+    oneof response {
+      PixKeyCreateResponse createResponse = 2;
+      PixKeyInfoResponse infoResponse = 3;
+      PixKeyListResponse listResponse = 4;
+    }
+  }
+
+  message Failure {
+    string message = 1;
+    repeated FieldError errors = 2;
+
+    message FieldError {
+      string field = 1;
+      string message = 2;
+    }
+  }
+}
