@@ -12,7 +12,7 @@ import javax.validation.constraints.Size
 
 @Introspected @ValidKeyValue
 data class PixKeyCreateRequestRest(
-    @ValidKeyType val keyType: String?,
+    val keyType: String?,
     @field:Size(max=77) //@field:CPF
     val keyValue: String?,
     @ValidAccountType val accountType: String?
@@ -22,7 +22,7 @@ data class PixKeyCreateRequestRest(
         return PixKeyCreateRequest.newBuilder()
             .setClientId(clientId)
             .setKeyType(KeyType.valueOf(keyType!!))
-            .setKeyValue(keyValue)
+            .setKeyValue(keyValue ?: "")
             .setAccountType(AccountType.valueOf(accountType!!))
             .build()
     }

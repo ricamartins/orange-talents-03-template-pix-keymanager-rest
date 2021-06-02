@@ -40,7 +40,8 @@ class ValidKeyValueValidator: ConstraintValidator<ValidKeyValue, PixKeyCreateReq
                 it.isNotBlank().and(EmailValidator().isValid(request.keyValue, context))
             } ?: false).also { addConstraint("Must be a valid email", "keyValue", context) }
 
-            KeyType.DOCUMENT.name -> CPFValidator().run { initialize(null)
+            KeyType.DOCUMENT.name -> CPFValidator().run {
+                initialize(null)
                 isValid(request.keyValue, context)
             }.also { if (!it) addConstraint("Must be valid CPF", "keyValue", context) }
 
