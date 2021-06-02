@@ -5,4 +5,4 @@ import org.junit.jupiter.api.extension.ExtendWith
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 @ExtendWith(GrpcMockServiceExtension::class)
-annotation class GrpcMockService(val port: String = "50051")
+annotation class GrpcMockServer(val port: String = "", val channel: String = "")
